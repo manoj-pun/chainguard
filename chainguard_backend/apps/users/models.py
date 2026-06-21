@@ -24,9 +24,10 @@ class UserManager(BaseUserManager):
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser must have is_staff=True")
         
-        if extra_fields.get("is_supervisor") is not True:
+        if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_supervisor=True")
         
+        return self.create_user(email, password, **extra_fields)
 
 class User(AbstractUser):
     class Role(models.TextChoices):
@@ -44,7 +45,8 @@ class User(AbstractUser):
     objects = UserManager()
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, error_messages={"unique": "Email already registered."})
+    #default is "user with this email already exists."
     avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
     badge_id = models.CharField(max_length=20, unique=True, null=True, blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.PENDING)
