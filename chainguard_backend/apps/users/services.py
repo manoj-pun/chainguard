@@ -1,4 +1,5 @@
 from .models import User
+from rest_framework_simplejwt.tokens import RefreshToken
 
 def register_user(*,first_name, last_name=None, email, password):
     """Create and return a new user instance using validated input data."""
@@ -9,3 +10,11 @@ def register_user(*,first_name, last_name=None, email, password):
         password=password,
     )
     return user
+
+
+def login_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        "access": str(refresh.access_token),
+        "refresh": str(refresh),
+    }
