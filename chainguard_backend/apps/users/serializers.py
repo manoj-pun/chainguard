@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-from .models import User
-from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model, authenticate
+
+User = get_user_model()
 
 """Serializer for handling user registration."""
 class RegisterUserSerializer(serializers.ModelSerializer):
@@ -54,3 +55,32 @@ class LoginUserSerializer(serializers.Serializer):
         
         attrs["user"] = user
         return attrs
+    
+
+"""Serializer for assigning the role"""
+class AssignRoleSerializer(serializers.Serializer):
+    role = serializers.ChoiceField(User.Role.choices)
+
+
+"""Serializer for uploading the profile"""
+class CompleteProfileSerializer(serializers.Serializer):
+    avatar = serializers.ImageField()
+
+
+"""Update the profile"""
+class UpdateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'avatar']
+        extra_kwargs = {
+            'first_name': {'required': False},
+            'last_name': {'required': False},
+            'email': {'required': False},
+            'avatar': {'required': False},
+        }
+
+    def validate_email(self, value):
+        user = self.context.get('user')
+        if User.objects.filter(email=value).exclude(id=user.id).exists():
+            raise serializers.ValidationError("Email already in use.")
+        return value

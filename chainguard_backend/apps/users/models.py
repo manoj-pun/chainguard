@@ -18,7 +18,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser",True)
 
         #force role for superuser
-        extra_fields["role"] = "supervisor"
+        extra_fields["role"] = "SUPERVISOR"
 
         #safety checks
         if extra_fields.get("is_staff") is not True:
