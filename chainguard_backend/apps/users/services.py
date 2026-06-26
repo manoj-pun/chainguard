@@ -60,7 +60,7 @@ def assign_role(*, user, role):
 def complete_profile(*, user, avatar):
     user.avatar = avatar
     user.profile_complete = True
-    user.save()
+    user.save(update_fields=["avatar", "profile_complete"])
     return user
 
 
