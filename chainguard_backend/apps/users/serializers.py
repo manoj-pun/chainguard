@@ -36,7 +36,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 class UserDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'role', 'avatar']
+        fields = ['id', 'first_name', 'last_name', 'email', 'role', 'avatar', 'badge_id']
 
 
 """Serializer for loggin in user"""
@@ -67,7 +67,7 @@ class CompleteProfileSerializer(serializers.Serializer):
     avatar = serializers.ImageField()
 
 
-"""Update the profile"""
+"""Serializer for updating the profile"""
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

@@ -137,6 +137,9 @@ class LogoutAPIView(APIView):
         return response
     
 
+"""API end point for listing all users
+    Only supervisor can list all users
+"""
 class UserListAPIView(ListAPIView):
     permission_classes = [IsSupervisor]
     serializer_class = UserDataSerializer
@@ -149,20 +152,23 @@ class UserListAPIView(ListAPIView):
 class AssignRoleAPIView(APIView):
     permission_classes = [IsSupervisor]
 
-    def patch(self,request,pk):
-        target_user = get_object_or_404(User,id=pk)
-
+    def patch(self, request, pk):
+        target_user = get_object_or_404(User, id=pk)
         serializer = AssignRoleSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = services.assign_role(
-            user = target_user,
-            role = serializer.validated_data['role']
-        )
+        try:
+            user = services.assign_role(
+                user=target_user,
+                role=serializer.validated_data['role']
+            )
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(UserDataSerializer(user).data, status=status.HTTP_200_OK)
     
 
+"""API end point for uploading profile"""
 class CompleteProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
@@ -185,6 +191,7 @@ class CompleteProfileAPIView(APIView):
         return Response(UserDataSerializer(user).data, status=status.HTTP_200_OK)
     
 
+"""API end point for updating profile"""
 class UpdateUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
