@@ -23,6 +23,7 @@ class AuditLog(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        db_table = "audits"
         ordering = ["-timestamp"]
         indexes = [
             models.Index(fields=["entity_type", "entity_id"]),
