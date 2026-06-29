@@ -64,7 +64,7 @@ class AssignRoleSerializer(serializers.Serializer):
 
 """Serializer for uploading the profile"""
 class CompleteProfileSerializer(serializers.Serializer):
-    avatar = serializers.ImageField()
+    avatar = serializers.ImageField(use_url=True)
 
 
 """Serializer for updating the profile"""

@@ -52,7 +52,7 @@ def logout_user(refresh_token):
     token.blacklist()
 
 
-"""Services for assigning role with batch id"""
+"""Services for assigning role with badge id"""
 ROLE_PREFIX = {
     User.Role.OFFICER: "OFF",
     User.Role.STORAGE_CLERK: "SC",

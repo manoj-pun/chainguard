@@ -16,7 +16,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from apps.common.permissions import IsSupervisor
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
 
 User = get_user_model()
@@ -148,6 +148,15 @@ class UserListAPIView(ListAPIView):
         return User.objects.exclude(role=User.Role.SUPERVISOR).order_by('role')
     
 
+"""API end point for retrieving single user with id"""
+class UserRetrieveAPIView(RetrieveAPIView):
+    permission_classes = [IsSupervisor]
+    serializer_class = UserDataSerializer
+
+    def get_queryset(self):
+        return User.objects.exclude(role=User.Role.SUPERVISOR)
+    
+
 """API end point for assigning roles"""
 class AssignRoleAPIView(APIView):
     permission_classes = [IsSupervisor]
@@ -188,7 +197,7 @@ class CompleteProfileAPIView(APIView):
             avatar=serializer.validated_data['avatar']
         )
 
-        return Response(UserDataSerializer(user).data, status=status.HTTP_200_OK)
+        return Response(UserDataSerializer(user,context={'request': request}).data, status=status.HTTP_200_OK)
     
 
 """API end point for updating profile"""
