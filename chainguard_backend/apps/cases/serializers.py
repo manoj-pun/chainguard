@@ -5,8 +5,7 @@ from .models import Case
 class CaseCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Case
-        fields = ["case_id","title","description","status","created_at"]
-        read_only_fields = ["case_id","status","created_at"]
+        fields = ["title","description"]
 
     def validate_title(self,value):
         if len(value.strip()) < 5:
