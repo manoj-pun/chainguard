@@ -5,9 +5,16 @@ from .serializers import (
 )
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
 from .models import Case
-from apps.common.permissions import IsOfficer, IsProfileComplete, IsStorageClerk, IsAnlyst
+from apps.common.permissions import IsOfficer, IsProfileComplete, IsStorageClerk, IsAnlyst, IsSupervisor
 from rest_framework.permissions import IsAuthenticated
-from .services import create_case, submit_case_to_storage, acknowledge_case, submit_case_to_analyst
+from .services import (
+    create_case, 
+    submit_case_to_storage, 
+    acknowledge_case, 
+    submit_case_to_analyst, 
+    send_case_to_court, 
+    close_case
+)
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -95,7 +102,7 @@ class AcknowledgeCaseAPIView(APIView):
         return Response({"detail":"Case Acknowledged"}, status=status.HTTP_200_OK)
     
 
-class SubmitCaseToAnalyst(APIView):
+class SubmitCaseToAnalystAPIView(APIView):
     permission_classes = [IsStorageClerk, IsProfileComplete]
 
     def post(self,request,pk):
@@ -107,4 +114,32 @@ class SubmitCaseToAnalyst(APIView):
             return Response({"detail":str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
         return Response({"detail":"Case submitted to analyst"}, status=status.HTTP_200_OK)
+    
+
+class SendCaseToCourtAPIView(APIView):
+    permission_classes = [IsSupervisor]
+
+    def post(self,request,pk):
+        case = get_object_or_404(Case, case_id=pk)
+
+        try:
+            send_case_to_court(case=case, supervisor=request.user)
+        except ValueError as e:
+            return Response({"detail":str(e)},status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"detail":"Case sent to court"}, status=status.HTTP_200_OK)
+    
+
+class CloseCaseAPIView(APIView):
+    permission_classes = [IsSupervisor]
+
+    def post(self,request,pk):
+        case = get_object_or_404(Case,case_id=pk)
+
+        try:
+            close_case(case=case, supervisor=request.user)
+        except ValueError as e:
+            return Response({"detail":str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"detail":"Case Closed"},status=status.HTTP_200_OK)
 

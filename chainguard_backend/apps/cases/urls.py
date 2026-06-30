@@ -7,5 +7,5 @@ urlpatterns = [
 
     path("cases/<uuid:pk>/submit-case-to-storage/", views.SubmitCaseToStorageAPIView.as_view()),
     path("cases/<uuid:pk>/acknowledge-case/", views.AcknowledgeCaseAPIView.as_view()),
-    path("cases/<uuid:pk>/submit-case-to-analyst/", views.SubmitCaseToAnalyst.as_view()),
+    path("cases/<uuid:pk>/submit-case-to-analyst/", views.SubmitCaseToAnalystAPIView.as_view()),
 ]

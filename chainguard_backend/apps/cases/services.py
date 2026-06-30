@@ -3,6 +3,7 @@ from apps.audits.models import AuditLog
 from django.db import transaction
 from django.db.models import Count
 from apps.evidence.models import Evidence
+from datetime import timezone
 
 """Create case services"""
 @transaction.atomic
@@ -92,6 +93,40 @@ def submit_case_to_analyst(*, case, storage_clerk):
         AuditLog.objects.create(
             actor = storage_clerk,
             action = AuditLog.Action.CASE_WITH_ANALYST,
+            entity_type = "Case",
+            entity_id = str(case.pk)
+        )
+
+
+def send_case_to_court(*, case, supervisor):
+    # guard: case must be under review
+    if case.status != Case.Status.UNDER_REVIEW:
+        raise ValueError("Only cases under review can be sent to court.")
+
+    with transaction.atomic():
+        case.status = Case.Status.SENT_TO_COURT
+        case.save()
+
+        AuditLog.objects.create(
+            actor = supervisor,
+            action = AuditLog.Action.CASE_SENT_TO_COURT,
+            entity_type = "Case",
+            entity_id = str(case.pk)
+        )
+
+
+def close_case(*, case,supervisor):
+    if case.status != Case.Status.SENT_TO_COURT:
+        raise ValueError("Only cases sent to court can be closed.")
+
+    with transaction.atomic():
+        case.status = Case.Status.CLOSED
+        case.closed_at = timezone.now()
+        case.save()
+
+        AuditLog.objects.create(
+            actor = supervisor,
+            action = AuditLog.Action.CASE_CLOSED,
             entity_type = "Case",
             entity_id = str(case.pk)
         )
