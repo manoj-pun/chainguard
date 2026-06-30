@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Case
 from apps.evidence.serializers import EvidenceListSerializer
 
-"""Case Serializer"""
+"""Serializer to create case"""
 class CaseCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Case

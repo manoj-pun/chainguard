@@ -3,7 +3,7 @@ from apps.audits.models import AuditLog
 from django.db import transaction
 from django.db.models import Count
 from apps.evidence.models import Evidence
-from datetime import timezone
+from django.utils import timezone
 
 """Create case services"""
 @transaction.atomic
@@ -25,6 +25,7 @@ def create_case(*, officer, validated_data):
     return case
 
 
+"""Services to submit case to storage"""
 def submit_case_to_storage(*, case, officer):
     """Case must be open"""
     if case.status != Case.Status.OPEN:
@@ -62,6 +63,7 @@ def submit_case_to_storage(*, case, officer):
         )
 
 
+"""Services to acknowledge case"""
 def acknowledge_case(*,case,storage_clerk):
     if case.status != Case.Status.SUBMITTED_TO_STORAGE:
         raise ValueError("Already in storage.")
@@ -80,6 +82,7 @@ def acknowledge_case(*,case,storage_clerk):
         )
 
 
+"""Services to send case to analyst"""
 def submit_case_to_analyst(*, case, storage_clerk):
     if case.status != Case.Status.IN_STORAGE:
         raise ValueError("Only the cases in storage can be sent.")
@@ -98,6 +101,35 @@ def submit_case_to_analyst(*, case, storage_clerk):
         )
 
 
+"""Services to submit findings"""
+def submit_findings(*, case, analyst):
+    if case.status != Case.Status.WITH_ANALYST:
+        raise ValueError("Only cases with analyst can submit findings.")
+
+    evidence_without_findings = case.case_evidence_items.annotate(
+        finding_count=Count('findings')
+    ).filter(finding_count=0)
+
+    if evidence_without_findings.exists():
+        raise ValueError("All evidence must have at least one finding before submitting.")
+
+    with transaction.atomic():
+        case.status = Case.Status.UNDER_REVIEW
+        case.save()
+
+        case.case_evidence_items.all().update(
+            status=Evidence.Status.ANALYSIS_COMPLETE
+        )
+
+        AuditLog.objects.create(
+            actor = analyst,
+            action = AuditLog.Action.FINDING_SUBMITTED,
+            entity_type = "Case",
+            entity_id = str(case.pk)
+        )
+
+
+"""Services to send case to court"""
 def send_case_to_court(*, case, supervisor):
     # guard: case must be under review
     if case.status != Case.Status.UNDER_REVIEW:
@@ -115,6 +147,7 @@ def send_case_to_court(*, case, supervisor):
         )
 
 
+"""Services to close case"""
 def close_case(*, case,supervisor):
     if case.status != Case.Status.SENT_TO_COURT:
         raise ValueError("Only cases sent to court can be closed.")

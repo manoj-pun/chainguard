@@ -5,13 +5,14 @@ from .serializers import (
 )
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
 from .models import Case
-from apps.common.permissions import IsOfficer, IsProfileComplete, IsStorageClerk, IsAnlyst, IsSupervisor
+from apps.common.permissions import IsOfficer, IsProfileComplete, IsStorageClerk, IsAnalyst, IsSupervisor
 from rest_framework.permissions import IsAuthenticated
 from .services import (
     create_case, 
     submit_case_to_storage, 
     acknowledge_case, 
     submit_case_to_analyst, 
+    submit_findings,
     send_case_to_court, 
     close_case
 )
@@ -62,7 +63,8 @@ class CaseCreateAPIView(ListCreateAPIView):
         )
         return Response(CaseListSerializer(case).data, status=status.HTTP_201_CREATED)
 
-    
+
+"""API end point for viewing case with id""" 
 class CaseDetailAPIView(RetrieveAPIView):
     serializer_class = CaseDetailSerializer
     permission_classes = [IsAuthenticated, IsProfileComplete]
@@ -74,6 +76,9 @@ class CaseDetailAPIView(RetrieveAPIView):
         return Case.objects.filter(officer = user)
 
 
+"""API end point for submitting case to storage
+    Only officer can do
+"""
 class SubmitCaseToStorageAPIView(APIView):
     permission_classes = [IsOfficer, IsProfileComplete]
 
@@ -88,6 +93,9 @@ class SubmitCaseToStorageAPIView(APIView):
         return Response({"detail": "Case submitted to storage."}, status=status.HTTP_200_OK)
     
 
+"""API end point for acknowledging the case
+    Only storage clerk can do
+"""
 class AcknowledgeCaseAPIView(APIView):
     permission_classes = [IsStorageClerk, IsProfileComplete]
 
@@ -102,6 +110,9 @@ class AcknowledgeCaseAPIView(APIView):
         return Response({"detail":"Case Acknowledged"}, status=status.HTTP_200_OK)
     
 
+"""API end point for submitting the case to analyst
+    Only storage clerk can do
+"""
 class SubmitCaseToAnalystAPIView(APIView):
     permission_classes = [IsStorageClerk, IsProfileComplete]
 
@@ -116,6 +127,26 @@ class SubmitCaseToAnalystAPIView(APIView):
         return Response({"detail":"Case submitted to analyst"}, status=status.HTTP_200_OK)
     
 
+"""API end point to submit findings
+    Only analyst can do
+"""
+class SubmitFindingsAPIView(APIView):
+    permission_classes = [IsAnalyst,IsProfileComplete]
+
+    def post(self,request,pk):
+        case = get_object_or_404(Case, case_id=pk)
+
+        try:
+            submit_findings(case=case, analyst=request.user)
+        except ValueError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"detail": "Findings submitted to supervisor"}, status=status.HTTP_200_OK)
+
+
+"""API end point to send case to court
+    Only supervisor can do
+"""
 class SendCaseToCourtAPIView(APIView):
     permission_classes = [IsSupervisor]
 
@@ -130,6 +161,9 @@ class SendCaseToCourtAPIView(APIView):
         return Response({"detail":"Case sent to court"}, status=status.HTTP_200_OK)
     
 
+"""API end point for closing case
+    Only supervisor can do
+"""
 class CloseCaseAPIView(APIView):
     permission_classes = [IsSupervisor]
 
