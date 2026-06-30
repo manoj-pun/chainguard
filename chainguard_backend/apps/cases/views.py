@@ -7,7 +7,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
 from .models import Case
 from apps.common.permissions import IsOfficer, IsProfileComplete, IsStorageClerk, IsAnlyst
 from rest_framework.permissions import IsAuthenticated
-from .services import create_case, submit_case_to_storage, acknowledge_case
+from .services import create_case, submit_case_to_storage, acknowledge_case, submit_case_to_analyst
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -93,4 +93,18 @@ class AcknowledgeCaseAPIView(APIView):
             return Response({"detail":str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
         return Response({"detail":"Case Acknowledged"}, status=status.HTTP_200_OK)
+    
+
+class SubmitCaseToAnalyst(APIView):
+    permission_classes = [IsStorageClerk, IsProfileComplete]
+
+    def post(self,request,pk):
+        case = get_object_or_404(Case, case_id=pk)
+
+        try:
+            submit_case_to_analyst(case=case, storage_clerk=request.user)
+        except ValueError as e:
+            return Response({"detail":str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"detail":"Case submitted to analyst"}, status=status.HTTP_200_OK)
 

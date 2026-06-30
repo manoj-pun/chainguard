@@ -77,3 +77,21 @@ def acknowledge_case(*,case,storage_clerk):
             entity_type = "Case",
             entity_id = str(case.pk)
         )
+
+
+def submit_case_to_analyst(*, case, storage_clerk):
+    if case.status != Case.Status.IN_STORAGE:
+        raise ValueError("Only the cases in storage can be sent.")
+    
+    with transaction.atomic():
+        case.status = Case.Status.WITH_ANALYST
+        case.save()
+
+        case.case_evidence_items.all().update(status=Evidence.Status.WITH_ANALYST)
+
+        AuditLog.objects.create(
+            actor = storage_clerk,
+            action = AuditLog.Action.CASE_WITH_ANALYST,
+            entity_type = "Case",
+            entity_id = str(case.pk)
+        )
