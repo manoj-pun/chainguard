@@ -19,12 +19,12 @@ class IsSuperVisorOrOfficer(BasePermission):
 
 class IsStorageClerk(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role==["STORAGE_CLERK"]
+        return request.user.is_authenticated and request.user.role=="STORAGE_CLERK"
     
 
 class IsAnlyst(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role==["ANALYST"]
+        return request.user.is_authenticated and request.user.role=="ANALYST"
     
 
 class IsProfileComplete(BasePermission):
