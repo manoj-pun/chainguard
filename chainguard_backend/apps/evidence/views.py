@@ -13,6 +13,8 @@ from .services import create_evidence, create_evidence_file
 from rest_framework.response import Response
 from rest_framework import status
 
+
+"""API end point to list and create evidence"""
 class EvidenceListCreateAPIView(ListCreateAPIView):
     def get_permissions(self):
         if self.request.method == "POST":
@@ -58,6 +60,7 @@ class EvidenceListCreateAPIView(ListCreateAPIView):
         )
     
 
+"""API end point to view evidence with id"""
 class EvidenceDetailAPIView(RetrieveAPIView):
     serializer_class = EvidenceDetailSerializer
     permission_classes = [IsSuperVisorOrOfficer, IsProfileComplete]
@@ -69,6 +72,7 @@ class EvidenceDetailAPIView(RetrieveAPIView):
         return Evidence.objects.filter(officer=user)
     
 
+"""API end point to list and create evidence file"""
 class EvidenceFileListCreateAPIVIew(ListCreateAPIView):
     def get_permissions(self):
         if self.request.method == "POST":
@@ -101,6 +105,7 @@ class EvidenceFileListCreateAPIVIew(ListCreateAPIView):
         )
     
 
+"""API end point to view evidence file with id"""
 class EvidenceFileDetailAPIView(RetrieveAPIView):
     serializer_class = EvidenceFileDetailSerializer
     permission_classes = [IsSuperVisorOrOfficer, IsProfileComplete]
