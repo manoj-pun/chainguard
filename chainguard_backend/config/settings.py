@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "apps.users.apps.UsersConfig",
     "apps.cases.apps.CasesConfig",
     "apps.audits.apps.AuditsConfig",
+    "apps.evidence.apps.EvidenceConfig",
 ]
 
 AUTH_USER_MODEL = "users.User"

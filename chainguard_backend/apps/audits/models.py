@@ -11,6 +11,7 @@ class AuditLog(models.Model):
         CASE_SENT_TO_COURT = "CASE_SENT_TO_COURT", "Case Sent to Court"
         CASE_CLOSED = "CASE_CLOSED", "Case Closed"
         EVIDENCE_COLLECTED = "EVIDENCE_COLLECTED", "Evidence Collected"
+        EVIDENCE_FILE_UPLOADED = "EVIDENCE_FILE_UPLOADED", "Evidence File Uploaded"
         EVIDENCE_ANALYSIS_COMPLETE = "EVIDENCE_ANALYSIS_COMPLETE", "Evidence Analysis Complete"
         DRAFT = "DRAFT", "Draft"
         SUBMITTED = "SUBMITTED", "Submitted"

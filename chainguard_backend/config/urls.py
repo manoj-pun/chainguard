@@ -28,6 +28,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include("apps.users.urls")),
     path("api/", include("apps.cases.urls")),
+    path("api/", include("apps.evidence.urls")),
 
     #for the token related urls
     path("api/token/", TokenObtainPairView.as_view(),name="token_obtain_pair"),
