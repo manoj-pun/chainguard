@@ -22,7 +22,7 @@ class IsStorageClerk(BasePermission):
         return request.user.is_authenticated and request.user.role=="STORAGE_CLERK"
     
 
-class IsAnlyst(BasePermission):
+class IsAnalyst(BasePermission):
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.role=="ANALYST"
     
