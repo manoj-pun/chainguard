@@ -53,6 +53,9 @@ INSTALLED_APPS = [
     "apps.audits.apps.AuditsConfig",
     "apps.evidence.apps.EvidenceConfig",
     "apps.findings.apps.FindingsConfig",
+
+    #silk for profiling and optimization
+    "silk",
 ]
 
 AUTH_USER_MODEL = "users.User"
@@ -65,6 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "silk.middleware.SilkyMiddleware",
 ]
 
 ROOT_URLCONF = 'config.urls'
