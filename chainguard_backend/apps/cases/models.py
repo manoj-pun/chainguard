@@ -15,7 +15,7 @@ class Case(models.Model):
 
     case_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     officer = models.ForeignKey('users.User', on_delete=models.PROTECT, related_name="cases")
-    title = models.CharField(max_length=20)
+    title = models.CharField(max_length=255)
     description = models.TextField(blank=True, default="")
     status = models.CharField(max_length=30, choices=Status.choices, default=Status.OPEN)
     created_at = models.DateTimeField(auto_now_add=True)
