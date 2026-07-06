@@ -56,6 +56,9 @@ INSTALLED_APPS = [
 
     #silk for profiling and optimization
     "silk",
+
+    #drf-spectacular for api documentation
+    "drf_spectacular",
 ]
 
 AUTH_USER_MODEL = "users.User"
@@ -127,7 +130,8 @@ AUTH_PASSWORD_VALIDATORS = [
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES":[
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ]
+    ],
+    "DEFAULT_SCHEMA_CLASS":"drf_spectacular.openapi.AutoSchema",
 }
 
 SIMPLE_JWT = {
