@@ -6,7 +6,7 @@ from .serializers import (
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
 from .models import Case
 from apps.common.permissions import IsOfficer, IsProfileComplete, IsStorageClerk, IsAnalyst, IsSupervisor
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .services import (
     create_case, 
     submit_case_to_storage, 
@@ -20,16 +20,20 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
+from .pagination import CasePagination
+from rest_framework.pagination import LimitOffsetPagination
 
 """Create and list cases
     Create can only be done by officer
     List can only be done supervisor and officer can only list his cases
 """
 class CaseCreateAPIView(ListCreateAPIView):
+    pagination_class = CasePagination
+
     def get_permissions(self):
         if self.request.method == "POST":
             return [IsOfficer(),IsProfileComplete()]
-        return [IsAuthenticated()]
+        return [AllowAny()]
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -38,6 +42,8 @@ class CaseCreateAPIView(ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
+        if not user.is_authenticated:
+            return Case.objects.all()
         if user.role == "SUPERVISOR":
             return Case.objects.all()
         if user.role == "OFFICER":
