@@ -33,7 +33,8 @@ class CaseCreateAPIView(ListCreateAPIView):
     def get_permissions(self):
         if self.request.method == "POST":
             return [IsOfficer(),IsProfileComplete()]
-        return [AllowAny()]
+        return [IsAuthenticated()]
+        # return [AllowAny()] to check the pagination
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -42,8 +43,8 @@ class CaseCreateAPIView(ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if not user.is_authenticated:
-            return Case.objects.all()
+        # if not user.is_authenticated:
+        #     return Case.objects.all() #to check the pagination
         if user.role == "SUPERVISOR":
             return Case.objects.all()
         if user.role == "OFFICER":
