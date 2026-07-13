@@ -22,6 +22,11 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from .pagination import CasePagination
 from rest_framework.pagination import LimitOffsetPagination
+# from django.utils.decorators import method_decorator
+# from django.views.decorators.cache import cache_page
+# from django.views.decorators.vary import vary_on_headers
+from rest_framework.filters import SearchFilter
+from django.core.cache import cache
 
 """Create and list cases
     Create can only be done by officer
@@ -29,12 +34,29 @@ from rest_framework.pagination import LimitOffsetPagination
 """
 class CaseCreateAPIView(ListCreateAPIView):
     pagination_class = CasePagination
+    # filter_backends = [SearchFilter]
+    # search_fields = ["title"]
+
+    """Implementing caching"""
+    def get_cache_key(self,user):
+        if user.role == "OFFICER":
+            return f"case_list:OFFICER:{user.pk}"
+        return f"case_list:{user.role}"
+    
+    def list(self, request, *args, **kwargs):
+        cache_key = self.get_cache_key(request.user)
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return Response(cached)
+        response = super().list(request, *args, **kwargs)
+        cache.set(cache_key,response.data,timeout=60*5)
+        return response
 
     def get_permissions(self):
         if self.request.method == "POST":
             return [IsOfficer(),IsProfileComplete()]
         return [IsAuthenticated()]
-        # return [AllowAny()] to check the pagination
+        # return [AllowAny()] #to check the pagination
 
     def get_serializer_class(self):
         if self.request.method == "POST":
